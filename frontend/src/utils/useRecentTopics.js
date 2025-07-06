@@ -3,9 +3,14 @@ import { useState, useCallback } from 'react';
 export const useRecentTopics = (initialTopics = []) => {
   const [recentTopics, setRecentTopics] = useState(initialTopics);
 
-  const addTopic = useCallback((topic) => {
+  const addTopic = useCallback((topic, explanation) => {
     setRecentTopics((prevTopics = []) => {
-      const updatedTopics = [topic, ...prevTopics].slice(0, 5); // Keep only the last 5 topics
+      const newTopic = {
+        topic,
+        explanation,
+      };
+      const updatedTopics = [newTopic, ...prevTopics].slice(0, 5); // Keep only the last 5 topics
+
       return updatedTopics;
     });
   }, []);

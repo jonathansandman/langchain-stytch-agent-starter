@@ -4,7 +4,7 @@ import os
 import logging
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage
-from utils import sanitize_string, store_topic_in_cache
+from utils import sanitize_string, store_topic_and_explanation_in_cache
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -42,8 +42,7 @@ async def explain_like_im_five(topic: str, org_id: str) -> str:
         response = await llm.ainvoke([HumanMessage(content=prompt(topic))])
         safe_output = sanitize_string(response.content)
         if safe_output:
-            logger.info(f"Storing topic in cache: {topic}")
-            await store_topic_in_cache(topic, org_id)  # Uncomment if using async cache
+            await store_topic_and_explanation_in_cache(topic, safe_output, org_id)
         else:
             logger.warning("LLM returned an empty response, not storing in cache.")
 

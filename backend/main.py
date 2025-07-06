@@ -16,6 +16,7 @@ from auth import (
     can_user_read_topic,
 )
 from pydantic import BaseModel
+from utils import get_cached_explanation_for_topic, get_cached_topics_and_explanations
 
 ENV_FILE = os.getenv("APP_ENV", ".env.local")
 load_dotenv(dotenv_path=ENV_FILE)
@@ -64,14 +65,21 @@ async def explain(
     if not user or not org or not can_user_create_topic:
         logger.warning("Unauthorized access attempt")
         raise HTTPException(status_code=401, detail="Unauthorized")
+    # Check if the topic is already cached
+    cached_explanation = await get_cached_explanation_for_topic(
+        request.topic, org.organization_id
+    )
+    if cached_explanation:
+        logger.info("Returning cached explanation")
+        return {"response": cached_explanation}
     logger.info("Calling agent...")
     response = await explain_like_im_five(request.topic, org_id=org.organization_id)
-    logger.info("Agent returned response")
+    logger.info("Returning agent explanation")
     return {"response": response}
 
 
-@app.get("/cached-explanations")
-async def get_cached_explanations(
+@app.get("/topics-and-explanations")
+async def get_topics_and_explanations(
     user_and_org=Depends(get_current_user_and_organization),
     can_user_read_topic=Depends(can_user_read_topic),
 ):
@@ -79,8 +87,5 @@ async def get_cached_explanations(
     if not user or not org or not can_user_read_topic:
         logger.warning("Unauthorized access attempt to cached topics")
         raise HTTPException(status_code=401, detail="Unauthorized")
-    client = redis.from_url(
-        os.getenv("REDIS_URL"), encoding="utf8", decode_responses=True
-    )
-    topics = await client.lrange(f"org:{org.organization_id}:topics", 0, -1)
-    return {"topics": topics}
+    topics = await get_cached_topics_and_explanations(org.organization_id)
+    return topics if topics else []

@@ -27,11 +27,11 @@ const ExplainForm = (props) => {
         throw new Error(data.error || 'Failed to fetch explanation');
       }
 
-      addTopic(topic);
+      addTopic(topic, data.response);
       setResponse(data.response);
     } catch (err) {
       console.error(err);
-      setResponse('Error: Could not fetch explanation.');
+      setResponse('Could not fetch explanation. Try again later.');
     }
   };
 

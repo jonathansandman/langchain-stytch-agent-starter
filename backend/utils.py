@@ -10,23 +10,39 @@ def redis_client() -> redis.Redis:
     raise ValueError("REDIS_URL environment variable is not set.")
 
 
-async def store_topic_in_cache(topic: str, org_id: str) -> None:
+async def store_topic_and_explanation_in_cache(
+    topic: str, explanation: str, org_id: str
+) -> None:
     if not topic:
         return
 
     client = redis_client()
-    cache_key = f"org:{org_id}:topics"
-    # Use a list to store the last 5 topics
-    await client.lpush(cache_key, topic)
-    await client.ltrim(cache_key, 0, 4)
-    await client.expire(cache_key, 604800)
+    cache_key = f"org:{org_id}:topics:{topic.lower().replace(' ', '_')}"
+    # Store the explanation in a list, with the most recent at the front
+    await client.set(cache_key, explanation, ex=604800)
 
 
-def get_cached_topics(org_id: str) -> list:
+async def get_cached_explanation_for_topic(topic: str, org_id: str) -> str | None:
     client = redis_client()
-    cache_key = f"org:{org_id}:topics"
-    topics = client.lrange(cache_key, 0, -1)
-    return topics if topics else []
+    cache_key = f"org:{org_id}:topics:{topic.lower().replace(' ', '_')}"
+    # cached_explanation = client.lrange(cache_key, 0, -1)
+    cached_explanation = await client.get(cache_key)
+    if cached_explanation:
+        return cached_explanation  # Return the most recent explanation
+    return None
+
+
+async def get_cached_topics_and_explanations(org_id: str) -> list[dict[str, str]]:
+    client = redis_client()
+    cache_key_pattern = f"org:{org_id}:topics:*"
+    keys = await client.keys(cache_key_pattern)
+    topics = []
+    for key in keys:
+        topic = key.split(":")[-1].replace("_", " ")
+        explanation = await client.get(key)
+        if explanation:
+            topics.append({"topic": topic, "explanation": explanation})
+    return topics
 
 
 def sanitize_string(text: str) -> str:

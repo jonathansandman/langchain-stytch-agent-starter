@@ -32,7 +32,7 @@ export const Dashboard = () => {
     }
 
     const baseUrl = import.meta.env.VITE_REACT_APP_BASE_URL || 'http://localhost:8000';
-    fetch(`${baseUrl}/cached-topics`, {
+    fetch(`${baseUrl}/topics-and-explanations`, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${sessionTokens.session_token}`,
@@ -40,7 +40,8 @@ export const Dashboard = () => {
     })
       .then((response) => response.json())
       .then((data) => {
-        setRecentTopics(recentTopics.length > 0 ? recentTopics : data.topics);
+        // set recent topics to the most recent 5 topics from data response
+        setRecentTopics(recentTopics.length > 0 ? recentTopics : data?.slice(-5));
       })
       .catch((error) => {
         console.error('Error fetching topics:', error);
@@ -65,7 +66,9 @@ export const Dashboard = () => {
           {recentTopics?.length > 0 ? (
             <ul>
               {recentTopics.map((topic, index) => (
-                <li key={index}>{topic}</li>
+                <li key={index}>
+                  <strong>{topic.topic}</strong>: {topic.explanation}
+                </li>
               ))}
             </ul>
           ) : (
