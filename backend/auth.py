@@ -26,11 +26,29 @@ can_user_create_topic_auth_check = {
     "action": "create",
 }
 
+can_user_read_topic_auth_check = {
+    "resource": "explain.topic",
+    "action": "read",
+}
+
 
 def can_user_create_topic(authorization: str = Header(...)):
     token = authorization.removeprefix("Bearer ").strip()
     try:
         data = verify_session_token(token, auth_check=can_user_create_topic_auth_check)
+        if not data.member or not data.organization:
+            logger.error("User or organization not found in session")
+            raise HTTPException(status_code=401, detail="Auth error")
+        return True
+    except Exception as e:
+        logger.error(f"Auth failed: {e}")
+        raise HTTPException(status_code=401, detail="Auth error")
+
+
+def can_user_read_topic(authorization: str = Header(...)):
+    token = authorization.removeprefix("Bearer ").strip()
+    try:
+        data = verify_session_token(token, auth_check=can_user_read_topic_auth_check)
         if not data.member or not data.organization:
             logger.error("User or organization not found in session")
             raise HTTPException(status_code=401, detail="Auth error")
@@ -68,8 +86,8 @@ def verify_session_token(token: str, auth_check=None) -> dict:
         token_cache[token] = response
         return response
     except StytchError as e:
-        logger.error(f"❌ Stytch API error: {e}")
+        logger.error(f"Stytch API error: {e}")
         raise HTTPException(status_code=401, detail="Invalid session token")
     except Exception as e:
-        logger.error(f"❌ Unexpected auth error: {e}")
+        logger.error(f"Unexpected auth error: {e}")
         raise HTTPException(status_code=500, detail="Authentication failed")
