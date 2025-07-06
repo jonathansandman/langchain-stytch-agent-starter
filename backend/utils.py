@@ -25,7 +25,6 @@ async def store_topic_and_explanation_in_cache(
 async def get_cached_explanation_for_topic(topic: str, org_id: str) -> str | None:
     client = redis_client()
     cache_key = f"org:{org_id}:topics:{topic.lower().replace(' ', '_')}"
-    # cached_explanation = client.lrange(cache_key, 0, -1)
     cached_explanation = await client.get(cache_key)
     if cached_explanation:
         return cached_explanation  # Return the most recent explanation
