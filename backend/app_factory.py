@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from config.settings import CORS_ORIGINS
-from core.rate_limiter import lifespan
+from config.rate_limiter import lifespan
 
 
 def create_app():

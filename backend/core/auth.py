@@ -1,7 +1,7 @@
 from fastapi import HTTPException, Header
 from cachetools import TTLCache
 from stytch.core.response_base import StytchError
-from core.stytch_setup import STYTCH_CLIENT
+from config.stytch_client import STYTCH_CLIENT
 from config.logging_config import logger
 
 token_cache = TTLCache(maxsize=500, ttl=300)

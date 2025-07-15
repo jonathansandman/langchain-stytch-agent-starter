@@ -1,12 +1,4 @@
-import re
-import redis.asyncio as redis
-from config.settings import REDIS_URL
-
-
-def redis_client() -> redis.Redis:
-    if REDIS_URL:
-        return redis.from_url(REDIS_URL, encoding="utf8", decode_responses=True)
-    raise ValueError("REDIS_URL environment variable is not set.")
+from config.redis import redis_client
 
 
 async def store_topic_and_explanation_in_cache(
@@ -41,16 +33,3 @@ async def get_cached_topics_and_explanations(org_id: str) -> list[dict[str, str]
         if explanation:
             topics.append({"topic": topic, "explanation": explanation})
     return topics
-
-
-def sanitize_string(text: str) -> str:
-    if not isinstance(text, str):
-        return ""
-
-    # Remove control characters and other suspicious invisible chars
-    cleaned = re.sub(r"[\x00-\x1f\x7f-\x9f]", "", text)
-
-    # Optionally, trim long whitespace or weird characters
-    cleaned = re.sub(r"\s+", " ", cleaned).strip()
-
-    return cleaned

@@ -9,10 +9,10 @@ from config.settings import (
     OPEN_AI_KEY,
 )
 from config.logging_config import logger
-from utils import (
-    sanitize_string,
+from core.cache import (
     store_topic_and_explanation_in_cache,
 )
+from core.utils import sanitize_string
 
 # Note: Ensure you have the OPENAI_API_KEY set in your environment variables
 # You can also swap this out for any other LLM provider supported by LangChain

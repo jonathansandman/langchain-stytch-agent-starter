@@ -3,18 +3,18 @@ from fastapi.responses import RedirectResponse
 from fastapi_limiter.depends import RateLimiter
 from pydantic import BaseModel
 from stytch.core.response_base import StytchError
-from agent import explain_like_im_five, exchange_code_for_oauth_token
-from auth import (
+from core.agent import explain_like_im_five, exchange_code_for_oauth_token
+from core.auth import (
     get_current_user_and_organization,
     can_user_create_topic,
     can_user_read_topic,
 )
 from pydantic import BaseModel
-from utils import (
+from config.logging_config import logger
+from core.cache import (
     get_cached_explanation_for_topic,
     get_cached_topics_and_explanations,
 )
-from config.logging_config import logger
 
 router = APIRouter()
 
