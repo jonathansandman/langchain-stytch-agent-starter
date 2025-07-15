@@ -1,5 +1,6 @@
-import { useStytchMemberSession, useStytchOrganization } from '@stytch/react/b2b';
-import { useStytchB2BClient } from '@stytch/react/b2b';
+import { useStytchMemberSession, useStytchOrganization, useStytchMember } from '@stytch/react/b2b';
+import { useStytchB2BClient, B2BIdentityProvider } from '@stytch/react/b2b';
+
 import { useEffect, useState } from 'react';
 import ExplainForm from './ExplainForm';
 import { useRecentTopics } from '../utils/useRecentTopics';
@@ -7,8 +8,12 @@ import { useRecentTopics } from '../utils/useRecentTopics';
 export const Dashboard = () => {
   const { session } = useStytchMemberSession();
   const { organization } = useStytchOrganization();
+  const { member } = useStytchMember();
   const stytch = useStytchB2BClient();
+
   const [sessionTokens, setSessionTokens] = useState({});
+  const [consentGrantedToChatbot, setConsentGrantedToChatbot] = useState(false);
+
   const { recentTopics, setRecentTopics, addTopic } = useRecentTopics([]);
   const isAuthorizedToViewRecentTopics = stytch.rbac.isAuthorizedSync('explain.topic', 'read');
 
@@ -25,13 +30,41 @@ export const Dashboard = () => {
     }
   }, []);
 
+  // See if user has connected apps
+  useEffect(() => {
+    const params = {
+      organization_id: organization?.organization_id,
+      member_id: member?.member_id,
+    };
+
+    const options = {
+      authorization: {
+        session_token: sessionTokens?.session_token,
+      },
+    };
+
+    stytch.self
+      .getConnectedApps(params, options)
+      .then((response) => {
+        if (response.connected_apps.length > 0) {
+          setConsentGrantedToChatbot(true);
+        } else {
+          console.log('No connected apps found for this user.');
+          setConsentGrantedToChatbot(false);
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching connected apps:', error);
+      });
+  }, [sessionTokens, organization, member]);
+
   useEffect(() => {
     if (!sessionTokens?.session_token) {
       console.warn('Session token not ready, skipping fetch');
       return;
     }
 
-    const baseUrl = import.meta.env.VITE_REACT_APP_BASE_URL || 'http://localhost:8000';
+    const baseUrl = import.meta.env.VITE_SERVER_BASE_URL || 'http://localhost:8000';
     fetch(`${baseUrl}/topics-and-explanations`, {
       headers: {
         'Content-Type': 'application/json',
@@ -59,7 +92,11 @@ export const Dashboard = () => {
           </p>
         </div>
       </div>
-      <ExplainForm sessionToken={sessionTokens?.session_token} addTopic={addTopic} />
+      {consentGrantedToChatbot ? (
+        <ExplainForm sessionToken={sessionTokens?.session_token} addTopic={addTopic} />
+      ) : (
+        <B2BIdentityProvider />
+      )}
       {isAuthorizedToViewRecentTopics && (
         <div className="topics-list">
           <h2>Organization members' last 5 topics</h2>

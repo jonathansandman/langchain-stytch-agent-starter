@@ -1,6 +1,7 @@
 import { discoveryConfig, discoveryStyles } from '../utils/stytchConfig';
 import { StytchEventType } from '@stytch/vanilla-js';
 import { useNavigate } from 'react-router-dom';
+import { dashboardConsentUrl } from '../utils/stytchConfig';
 
 import { StytchB2B } from '@stytch/react/b2b';
 
@@ -15,7 +16,7 @@ export const LogInOrSignUp = () => {
         callbacks={{
           onEvent: (event) => {
             if (event.type === StytchEventType.AuthenticateFlowComplete) {
-              navigate('/dashboard', { replace: true });
+              navigate(dashboardConsentUrl, { replace: true });
             }
           },
         }}
