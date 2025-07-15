@@ -1,7 +1,6 @@
 import { B2BIdentityProvider } from '@stytch/react/b2b';
 
 export const ConsentForm = () => {
-  console.log('Rendering ConsentForm component');
   return (
     <div className="dashboard-container">
       <div className="dashboard-content">

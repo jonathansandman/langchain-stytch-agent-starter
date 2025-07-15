@@ -15,6 +15,8 @@ export const Dashboard = () => {
   const { recentTopics, setRecentTopics, addTopic } = useRecentTopics([]);
   const isAuthorizedToViewRecentTopics = stytch.rbac.isAuthorizedSync('explain.topic', 'read');
 
+  const baseUrl = import.meta.env.VITE_SERVER_BASE_URL || 'http://localhost:8000';
+
   const handleGetTokens = () => {
     const tokens = stytch.session.getTokens();
     setSessionTokens(tokens);
@@ -29,26 +31,31 @@ export const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-    if (!sessionTokens?.session_token) {
-      console.warn('Session token not ready, skipping fetch');
-      return;
-    }
+    const fetchTopics = async () => {
+      try {
+        const response = await fetch(`${baseUrl}/topics-and-explanations`, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${sessionTokens.session_token}`,
+          },
+        });
 
-    const baseUrl = import.meta.env.VITE_SERVER_BASE_URL || 'http://localhost:8000';
-    fetch(`${baseUrl}/topics-and-explanations`, {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${sessionTokens.session_token}`,
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
         // set recent topics to the most recent 5 topics from data response
-        setRecentTopics(recentTopics.length > 0 ? recentTopics : data?.slice(-5));
-      })
-      .catch((error) => {
+        setRecentTopics((prev) => (prev.length > 0 ? prev : data?.slice(-5)));
+      } catch (error) {
         console.error('Error fetching topics:', error);
-      });
+      }
+    };
+
+    if (sessionTokens?.session_token) {
+      fetchTopics();
+    }
   }, [sessionTokens]);
 
   return (
