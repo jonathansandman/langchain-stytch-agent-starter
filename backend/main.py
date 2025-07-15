@@ -22,12 +22,11 @@ from auth import (
 from pydantic import BaseModel
 from utils import get_cached_explanation_for_topic, get_cached_topics_and_explanations
 
-ENV_FILE = os.getenv("APP_ENV", ".env.local")
-load_dotenv(dotenv_path=ENV_FILE)
+APP_ENV = os.getenv("APP_ENV", "local")
+load_dotenv(dotenv_path=APP_ENV)
 
 STYTCH_PROJECT_ID = os.getenv("STYTCH_PROJECT_ID")
 STYTCH_SECRET = os.getenv("STYTCH_SECRET")
-APP_ENV = os.getenv("APP_ENV", "local")
 ENVIRONMENT = "test" if APP_ENV != "production" else "live"
 
 logger = logging.getLogger(__name__)
@@ -76,10 +75,13 @@ async def explain(
     can_user_create_topic=Depends(can_user_create_topic),
 ):
     user, org = user_and_org
-    logger.info(f"Received request to explain: {request.topic}")
+
     if not user or not org or not can_user_create_topic:
         logger.warning("Unauthorized access attempt")
         raise HTTPException(status_code=401, detail="Unauthorized")
+
+    logger.info(f"Received request to explain: {request.topic}")
+
     # Check if the topic is already cached
     cached_explanation = await get_cached_explanation_for_topic(
         request.topic, org.organization_id
@@ -87,6 +89,7 @@ async def explain(
     if cached_explanation:
         logger.info("Returning cached explanation")
         return {"response": cached_explanation}
+
     logger.info("Calling agent...")
     response = await explain_like_im_five(request.topic, org_id=org.organization_id)
     logger.info("Returning agent explanation")
@@ -117,14 +120,18 @@ async def oauth_callback(request: Request):
 
     try:
         token_data = await exchange_code_for_oauth_token(code)
+
         if not token_data or "access_token" not in token_data:
             logger.error("Invalid token data received from OAuth exchange")
             raise HTTPException(status_code=500, detail="Invalid token data")
+
         logger.info("OAuth token exchange successful")
         return RedirectResponse(url="http://localhost:5173/dashboard")
+
     except StytchError as e:
         logger.error(f"OAuth token exchange failed: {e}")
         raise HTTPException(status_code=500, detail="OAuth token exchange failed")
+
     except Exception as e:
         logger.error(f"Unexpected error during OAuth callback: {e}")
         raise HTTPException(

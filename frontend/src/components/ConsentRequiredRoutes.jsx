@@ -16,6 +16,8 @@ export const ConsentRequiredRoutes = () => {
   const role = session?.roles.includes('stytch_admin') ? 'admin' : 'member';
   const isAuthorizedToViewRecentTopics = stytch.rbac.isAuthorizedSync('explain.topic', 'read');
 
+  // If the user cannot use the LLM chatbot -- i.e., is not an admin -- but is authorized to view recent topics,
+  // allow access to /dashboard without requiring a consent check.
   if (role !== 'admin' && isAuthorizedToViewRecentTopics) {
     return <Outlet />;
   }

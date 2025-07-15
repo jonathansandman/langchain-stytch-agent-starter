@@ -11,10 +11,8 @@ from utils import sanitize_string, store_topic_and_explanation_in_cache
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Determine and load environment-specific .env file
-# Get the application environment from the environment variable - APP_ENV
-app_env = os.getenv("APP_ENV", "local").lower()
-env_file = f".env.{app_env}"
+APP_ENV = os.getenv("APP_ENV", "local").lower()
+env_file = f".env.{APP_ENV}"
 env_path = os.path.join(os.path.dirname(__file__), env_file)
 load_dotenv(dotenv_path=env_path)
 
