@@ -1,23 +1,8 @@
-import os
-import logging
 from fastapi import HTTPException, Header
 from cachetools import TTLCache
-from stytch import B2BClient
 from stytch.core.response_base import StytchError
-
-STYTCH_PROJECT_ID = os.getenv("STYTCH_PROJECT_ID")
-STYTCH_SECRET = os.getenv("STYTCH_SECRET")
-APP_ENV = os.getenv("APP_ENV", "local")
-ENVIRONMENT = "test" if APP_ENV != "production" else "live"
-
-logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
-
-client = B2BClient(
-    project_id=STYTCH_PROJECT_ID,
-    secret=STYTCH_SECRET,
-    environment=ENVIRONMENT,
-)
+from config.settings import STYTCH_CLIENT
+from config.logging_config import logger
 
 token_cache = TTLCache(maxsize=500, ttl=300)
 
@@ -82,7 +67,7 @@ def verify_session_token(token: str, auth_check=None) -> dict:
         options["auth_check"] = auth_check
 
     try:
-        response = client.sessions.authenticate(**options)
+        response = STYTCH_CLIENT.sessions.authenticate(**options)
         token_cache[token] = response
         return response
     except StytchError as e:

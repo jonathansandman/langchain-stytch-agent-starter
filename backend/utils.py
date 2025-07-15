@@ -1,12 +1,11 @@
 import re
 import redis.asyncio as redis
-import os
+from config.settings import REDIS_URL
 
 
 def redis_client() -> redis.Redis:
-    redis_url = os.getenv("REDIS_URL")
-    if redis_url:
-        return redis.from_url(redis_url, encoding="utf8", decode_responses=True)
+    if REDIS_URL:
+        return redis.from_url(REDIS_URL, encoding="utf8", decode_responses=True)
     raise ValueError("REDIS_URL environment variable is not set.")
 
 

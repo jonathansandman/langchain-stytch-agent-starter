@@ -1,31 +1,24 @@
-from dotenv import load_dotenv
-
-import os
-import logging
 import httpx
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage
-from utils import sanitize_string, store_topic_and_explanation_in_cache
-
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-APP_ENV = os.getenv("APP_ENV", "local").lower()
-env_file = f".env.{APP_ENV}"
-env_path = os.path.join(os.path.dirname(__file__), env_file)
-load_dotenv(dotenv_path=env_path)
-
-STYTCH_PROJECT_ID = os.getenv("STYTCH_PROJECT_ID")
-CLIENT_ID = os.getenv("CONNECTED_APP_CLIENT_ID")
-CLIENT_SECRET = os.getenv("CONNECTED_APP_CLIENT_SECRET")
-REDIRECT_URI = os.getenv("CONNECTED_APP_REDIRECT_URI")
+from config.settings import (
+    STYTCH_PROJECT_ID,
+    CONNECTED_APP_CLIENT_ID,
+    CONNECTED_APP_CLIENT_SECRET,
+    CONNECTED_APP_REDIRECT_URI,
+    OPEN_AI_KEY,
+)
+from config.logging_config import logger
+from utils import (
+    sanitize_string,
+    store_topic_and_explanation_in_cache,
+)
 
 # Note: Ensure you have the OPENAI_API_KEY set in your environment variables
 # You can also swap this out for any other LLM provider supported by LangChain
 llm = ChatOpenAI(
     model="gpt-3.5-turbo",
-    openai_api_key=os.getenv("OPENAI_API_KEY"),
+    openai_api_key=OPEN_AI_KEY,
     timeout=20,
 )
 
@@ -62,9 +55,9 @@ async def exchange_code_for_oauth_token(code: str):
     payload = {
         "grant_type": "authorization_code",
         "code": code,
-        "client_id": CLIENT_ID,
-        "client_secret": CLIENT_SECRET,
-        "redirect_uri": REDIRECT_URI,
+        "client_id": CONNECTED_APP_CLIENT_ID,
+        "client_secret": CONNECTED_APP_CLIENT_SECRET,
+        "redirect_uri": CONNECTED_APP_REDIRECT_URI,
     }
 
     headers = {"Content-Type": "application/json"}
