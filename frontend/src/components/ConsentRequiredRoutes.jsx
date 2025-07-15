@@ -1,4 +1,4 @@
-import { useStytchOrganization, useStytchMember } from '@stytch/react/b2b';
+import { useStytchOrganization, useStytchMember, useStytchMemberSession } from '@stytch/react/b2b';
 import { useStytchB2BClient } from '@stytch/react/b2b';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
@@ -7,12 +7,18 @@ import { consentUrl } from '../utils/stytchConfig';
 export const ConsentRequiredRoutes = () => {
   const { organization } = useStytchOrganization();
   const { member } = useStytchMember();
+  const { session } = useStytchMemberSession();
   const stytch = useStytchB2BClient();
   const location = useLocation();
-
   const [consentGranted, setConsentGranted] = useState(null); // null = loading
-
   const isOnConsentPage = location.pathname.startsWith('/consent');
+
+  const role = session?.roles.includes('stytch_admin') ? 'admin' : 'member';
+  const isAuthorizedToViewRecentTopics = stytch.rbac.isAuthorizedSync('explain.topic', 'read');
+
+  if (role !== 'admin' && isAuthorizedToViewRecentTopics) {
+    return <Outlet />;
+  }
 
   useEffect(() => {
     const checkConsent = async () => {
@@ -21,7 +27,7 @@ export const ConsentRequiredRoutes = () => {
         const sessionToken = tokens?.session_token;
 
         if (!organization || !member || !sessionToken) {
-          console.log('⏳ Waiting for org, member, or token');
+          console.log('Waiting for org, member, or token');
           return;
         }
 
@@ -36,7 +42,7 @@ export const ConsentRequiredRoutes = () => {
         );
 
         const hasConnectedApps = response.connected_apps?.length > 0;
-        console.log('✅ Connected apps:', hasConnectedApps);
+        console.log('Connected apps:', hasConnectedApps);
         setConsentGranted(hasConnectedApps);
       } catch (error) {
         console.error('Error checking connected apps:', error);

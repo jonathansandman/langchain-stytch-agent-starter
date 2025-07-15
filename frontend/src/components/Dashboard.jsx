@@ -1,5 +1,5 @@
-import { useStytchMemberSession, useStytchOrganization, useStytchMember } from '@stytch/react/b2b';
-import { useStytchB2BClient, B2BIdentityProvider } from '@stytch/react/b2b';
+import { useStytchMemberSession, useStytchOrganization } from '@stytch/react/b2b';
+import { useStytchB2BClient } from '@stytch/react/b2b';
 
 import { useEffect, useState } from 'react';
 import ExplainForm from './ExplainForm';
