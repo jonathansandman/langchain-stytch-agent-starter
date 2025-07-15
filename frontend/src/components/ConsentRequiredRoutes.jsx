@@ -27,7 +27,6 @@ export const ConsentRequiredRoutes = () => {
         const sessionToken = tokens?.session_token;
 
         if (!organization || !member || !sessionToken) {
-          console.log('Waiting for org, member, or token');
           return;
         }
 
@@ -42,11 +41,9 @@ export const ConsentRequiredRoutes = () => {
         );
 
         const hasConnectedApps = response.connected_apps?.length > 0;
-        console.log('Connected apps:', hasConnectedApps);
         setConsentGranted(hasConnectedApps);
       } catch (error) {
-        console.error('Error checking connected apps:', error);
-        setConsentGranted(false); // Fail closed
+        setConsentGranted(false);
       }
     };
 
@@ -54,7 +51,7 @@ export const ConsentRequiredRoutes = () => {
   }, [organization, member, stytch.session]);
 
   if (consentGranted === null) {
-    return null; // or a loading spinner
+    return null;
   }
 
   if (!consentGranted && !isOnConsentPage) {
