@@ -8,11 +8,9 @@ import { useRecentTopics } from '../utils/useRecentTopics';
 export const Dashboard = () => {
   const { session } = useStytchMemberSession();
   const { organization } = useStytchOrganization();
-  const { member } = useStytchMember();
   const stytch = useStytchB2BClient();
 
   const [sessionTokens, setSessionTokens] = useState({});
-  const [consentGrantedToChatbot, setConsentGrantedToChatbot] = useState(false);
 
   const { recentTopics, setRecentTopics, addTopic } = useRecentTopics([]);
   const isAuthorizedToViewRecentTopics = stytch.rbac.isAuthorizedSync('explain.topic', 'read');
@@ -29,34 +27,6 @@ export const Dashboard = () => {
       handleGetTokens();
     }
   }, []);
-
-  // See if user has connected apps
-  useEffect(() => {
-    const params = {
-      organization_id: organization?.organization_id,
-      member_id: member?.member_id,
-    };
-
-    const options = {
-      authorization: {
-        session_token: sessionTokens?.session_token,
-      },
-    };
-
-    stytch.self
-      .getConnectedApps(params, options)
-      .then((response) => {
-        if (response.connected_apps.length > 0) {
-          setConsentGrantedToChatbot(true);
-        } else {
-          console.log('No connected apps found for this user.');
-          setConsentGrantedToChatbot(false);
-        }
-      })
-      .catch((error) => {
-        console.error('Error fetching connected apps:', error);
-      });
-  }, [sessionTokens, organization, member]);
 
   useEffect(() => {
     if (!sessionTokens?.session_token) {
@@ -92,11 +62,7 @@ export const Dashboard = () => {
           </p>
         </div>
       </div>
-      {consentGrantedToChatbot ? (
-        <ExplainForm sessionToken={sessionTokens?.session_token} addTopic={addTopic} />
-      ) : (
-        <B2BIdentityProvider />
-      )}
+      <ExplainForm sessionToken={sessionTokens?.session_token} addTopic={addTopic} />
       {isAuthorizedToViewRecentTopics && (
         <div className="topics-list">
           <h2>Organization members' last 5 topics</h2>

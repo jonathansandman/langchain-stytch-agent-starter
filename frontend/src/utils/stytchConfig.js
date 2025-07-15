@@ -50,4 +50,4 @@ export const discoveryStyles = {
 const CONNECTED_APP_CLIENT_ID = import.meta.env.VITE_CONNECTED_APP_CLIENT_ID;
 const CONNECTED_APP_REDIRECT_URI = import.meta.env.VITE_CONNECTED_APP_REDIRECT_URI;
 
-export const dashboardConsentUrl = `/dashboard?client_id=${CONNECTED_APP_CLIENT_ID}&redirect_uri=${encodeURIComponent(CONNECTED_APP_REDIRECT_URI)}`;
+export const consentUrl = `/consent?client_id=${CONNECTED_APP_CLIENT_ID}&redirect_uri=${encodeURIComponent(CONNECTED_APP_REDIRECT_URI)}`;

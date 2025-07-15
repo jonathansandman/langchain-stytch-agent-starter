@@ -5,8 +5,10 @@ import { Dashboard } from './components/Dashboard';
 import { SideNav } from './components/SideNav';
 import { Authenticate } from './components/Authenticate';
 import { ProtectedRoutes } from './components/ProtectedRoutes';
+import { ConsentRequiredRoutes } from './components/ConsentRequiredRoutes';
 import { Members } from './components/Members';
 import { Settings } from './components/Settings';
+import { ConsentForm } from './components/ConsentForm';
 import './App.css';
 
 export const App = () => {
@@ -23,7 +25,10 @@ export const App = () => {
           <Route path="/" element={<Navigate to="/authenticate" replace />} />
           <Route path="/authenticate" element={<Authenticate />} />
           <Route element={<ProtectedRoutes />}>
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path={'/consent'} element={<ConsentForm />} />
+            <Route element={<ConsentRequiredRoutes />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+            </Route>
             <Route path="/members" element={<Members />} />
             <Route path="/settings" element={<Settings />} />
           </Route>

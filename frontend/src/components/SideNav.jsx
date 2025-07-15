@@ -1,7 +1,6 @@
 import { useStytchB2BClient } from '@stytch/react/b2b';
 import { useCallback } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { dashboardConsentUrl } from '../utils/stytchConfig';
 
 export const SideNav = () => {
   const stytch = useStytchB2BClient();
@@ -14,10 +13,7 @@ export const SideNav = () => {
   return (
     <nav className="sidebar">
       <div className="nav-links">
-        <NavLink
-          to={dashboardConsentUrl}
-          className={({ isActive }) => (isActive ? 'active-link' : '')}
-        >
+        <NavLink to={'/dashboard'} className={({ isActive }) => (isActive ? 'active-link' : '')}>
           Home
         </NavLink>
         <NavLink to="/members" className={({ isActive }) => (isActive ? 'active-link' : '')}>
