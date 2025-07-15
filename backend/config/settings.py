@@ -1,5 +1,4 @@
 import os
-from stytch import B2BClient
 from dotenv import load_dotenv
 
 APP_ENV = os.getenv("APP_ENV", "local")
@@ -17,9 +16,3 @@ CONNECTED_APP_REDIRECT_URI = os.getenv("CONNECTED_APP_REDIRECT_URI")
 STYTCH_PROJECT_ID = os.getenv("STYTCH_PROJECT_ID")
 STYTCH_SECRET = os.getenv("STYTCH_SECRET")
 ENVIRONMENT = "live" if APP_ENV == "production" else "test"
-
-STYTCH_CLIENT = B2BClient(
-    project_id=STYTCH_PROJECT_ID,
-    secret=STYTCH_SECRET,
-    environment=ENVIRONMENT,
-)
