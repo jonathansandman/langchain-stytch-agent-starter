@@ -46,7 +46,6 @@ export const Dashboard = () => {
 
         const data = await response.json();
 
-        // set recent topics to the most recent 5 topics from data response
         setRecentTopics((prev) => (prev.length > 0 ? prev : data?.slice(-5)));
       } catch (error) {
         console.error('Error fetching topics:', error);
