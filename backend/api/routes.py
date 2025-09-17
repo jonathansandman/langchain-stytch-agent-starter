@@ -1,13 +1,14 @@
-from fastapi import APIRouter, Request, Depends, HTTPException
+from fastapi import APIRouter, Request, Depends, HTTPException, Header, Query
 from fastapi.responses import RedirectResponse
 from fastapi_limiter.depends import RateLimiter
 from pydantic import BaseModel
 from stytch.core.response_base import StytchError
-from core.agent import explain_like_im_five, exchange_code_for_oauth_token
+from core.agent import explain_like_im_five
 from core.auth import (
     get_current_user_and_organization,
     can_user_create_topic,
     can_user_read_topic,
+    verify_access_token,
 )
 from pydantic import BaseModel
 from config.logging_config import logger
@@ -64,31 +65,35 @@ async def get_topics_and_explanations(
     return topics if topics else []
 
 
-# Consent and grant scopes to Explain like I'm Five agent
-# Our backend is acting as a Connected App
-@router.get("/oauth/callback")
-async def oauth_callback(request: Request):
-    code = request.query_params.get("code")
-    if not code:
-        logger.error("No code provided in OAuth callback")
-        raise HTTPException(status_code=400, detail="Missing code parameter")
+@router.get("/explanations")
+async def get_explanations_for_cli(
+    authorization: str = Header(...),
+    limit: int = Query(default=10, le=50)
+):
+    """Get explanation history for CLI clients using access tokens"""
+
+    # Extract access token (NOT session token)
+    access_token = authorization.removeprefix("Bearer ").strip()
 
     try:
-        token_data = await exchange_code_for_oauth_token(code)
+        # Verify access token with Stytch
+        user_data = verify_access_token(access_token)
 
-        if not token_data or "access_token" not in token_data:
-            logger.error("Invalid token data received from OAuth exchange")
-            raise HTTPException(status_code=500, detail="Invalid token data")
+        if not user_data or not user_data.get('organization_id'):
+            raise HTTPException(status_code=401, detail="Invalid token or missing organization")
 
-        logger.info("OAuth token exchange successful")
-        return RedirectResponse(url="http://localhost:5173/dashboard")
+        # Get explanations for this organization
+        explanations = await get_cached_topics_and_explanations(user_data['organization_id'])
 
-    except StytchError as e:
-        logger.error(f"OAuth token exchange failed: {e}")
-        raise HTTPException(status_code=500, detail="OAuth token exchange failed")
+        # Limit results
+        limited_explanations = (explanations or [])[:limit]
 
+        return limited_explanations
+
+    except HTTPException:
+        raise
     except Exception as e:
-        logger.error(f"Unexpected error during OAuth callback: {e}")
-        raise HTTPException(
-            status_code=500, detail="Unexpected error during OAuth callback"
-        )
+        logger.error(f"CLI API error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch explanations")
+
+

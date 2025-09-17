@@ -17,7 +17,7 @@ async function getExplanationHistory(limit = 10) {
   }
 
   try {
-    const response = await fetch(`${ELI5_API_BASE_URL}/api/cli/explanations?limit=${limit}`, {
+    const response = await fetch(`${ELI5_API_BASE_URL}/explanations?limit=${limit}`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'

@@ -1,13 +1,6 @@
-import httpx
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage
-from config.settings import (
-    STYTCH_PROJECT_ID,
-    CONNECTED_APP_CLIENT_ID,
-    CONNECTED_APP_CLIENT_SECRET,
-    CONNECTED_APP_REDIRECT_URI,
-    OPEN_AI_KEY,
-)
+from config.settings import OPEN_AI_KEY
 from config.logging_config import logger
 from core.cache import (
     store_topic_and_explanation_in_cache,
@@ -49,20 +42,3 @@ async def explain_like_im_five(topic: str, org_id: str) -> str:
         return "Sorry, I'm out of brain juice right now! Try again later."
 
 
-async def exchange_code_for_oauth_token(code: str):
-    url = f"https://test.stytch.com/v1/public/{STYTCH_PROJECT_ID}/oauth2/token"
-
-    payload = {
-        "grant_type": "authorization_code",
-        "code": code,
-        "client_id": CONNECTED_APP_CLIENT_ID,
-        "client_secret": CONNECTED_APP_CLIENT_SECRET,
-        "redirect_uri": CONNECTED_APP_REDIRECT_URI,
-    }
-
-    headers = {"Content-Type": "application/json"}
-
-    async with httpx.AsyncClient() as client:
-        response = await client.post(url, json=payload, headers=headers)
-        response.raise_for_status()
-        return response.json()

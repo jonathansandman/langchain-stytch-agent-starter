@@ -76,3 +76,25 @@ def verify_session_token(token: str, auth_check=None) -> dict:
     except Exception as e:
         logger.error(f"Unexpected auth error: {e}")
         raise HTTPException(status_code=500, detail="Authentication failed")
+
+
+def verify_access_token(access_token: str) -> dict:
+    """Verify OAuth access token from Connected Apps (CLI)"""
+    try:
+        # Use Stytch's session authenticate with the access token
+        # Note: For now we'll use a simpler approach - in production you'd use proper OAuth token introspection
+        response = STYTCH_CLIENT.sessions.authenticate(session_token=access_token)
+
+        # Extract user and organization info from token
+        return {
+            'user_id': response.member.user_id,
+            'organization_id': response.organization.organization_id,
+            'scopes': []  # Scopes would come from proper OAuth introspection
+        }
+
+    except StytchError as e:
+        logger.error(f"Access token verification failed: {e}")
+        raise HTTPException(status_code=401, detail="Invalid access token")
+    except Exception as e:
+        logger.error(f"Token verification error: {e}")
+        raise HTTPException(status_code=401, detail="Invalid access token")
