@@ -6,6 +6,7 @@ const ExplainForm = (props) => {
   const { sessionToken, addTopic } = props;
   const [topic, setTopic] = useState('');
   const [response, setResponse] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const canSubmitTopic = useStytchIsAuthorized('explain.topic', 'create');
 
   // Show loading state while permissions are being checked
@@ -15,6 +16,7 @@ const ExplainForm = (props) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
 
     try {
       const baseUrl = import.meta.env.VITE_SERVER_BASE_URL || 'http://localhost:8000';
@@ -37,6 +39,8 @@ const ExplainForm = (props) => {
     } catch (err) {
       console.error(err);
       setResponse('Could not fetch explanation. Try again later.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -56,8 +60,15 @@ const ExplainForm = (props) => {
           value={topic}
           onChange={(e) => setTopic(e.target.value)}
         />
-        <button disabled={!canSubmitTopic} type="submit">
-          Explain it to me like I’m 5
+        <button disabled={!canSubmitTopic || isLoading} type="submit">
+          {isLoading ? (
+            <>
+              <span className="spinner"></span>
+              Thinking...
+            </>
+          ) : (
+            "Explain it to me like I'm 5"
+          )}
         </button>
       </form>
       {response && <div className="response-box">{response}</div>}
