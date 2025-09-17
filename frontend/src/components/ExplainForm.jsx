@@ -1,12 +1,17 @@
 import { useState } from 'react';
 import './form.css';
-import { withStytchPermissions } from '@stytch/react/b2b';
+import { useStytchIsAuthorized } from '@stytch/react/b2b';
 
 const ExplainForm = (props) => {
   const { sessionToken, addTopic } = props;
   const [topic, setTopic] = useState('');
   const [response, setResponse] = useState('');
-  const canSubmitTopic = props.stytchPermissions['explain.topic']['create'];
+  const canSubmitTopic = useStytchIsAuthorized('explain.topic', 'create');
+
+  // Show loading state while permissions are being checked
+  if (canSubmitTopic === null) {
+    return <div>Loading permissions...</div>;
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -60,4 +65,4 @@ const ExplainForm = (props) => {
   );
 };
 
-export default withStytchPermissions(ExplainForm);
+export default ExplainForm;
