@@ -34,11 +34,10 @@ async def explain_like_im_five(topic: str, org_id: str) -> str:
         if safe_output:
             await store_topic_and_explanation_in_cache(topic, safe_output, org_id)
         else:
-            logger.warning("LLM returned an empty response, not storing in cache.")
+            logger.warning(
+                "LLM returned an empty response, not storing in cache.")
 
         return safe_output
     except Exception as e:
         logger.error("LLM error: %s", e)
         return "Sorry, I'm out of brain juice right now! Try again later."
-
-

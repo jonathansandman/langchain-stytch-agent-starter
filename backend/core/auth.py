@@ -81,15 +81,29 @@ def verify_session_token(token: str, auth_check=None) -> dict:
 def verify_access_token(access_token: str) -> dict:
     """Verify OAuth access token from Connected Apps (CLI)"""
     try:
-        # Use Stytch's session authenticate with the access token
-        # Note: For now we'll use a simpler approach - in production you'd use proper OAuth token introspection
-        response = STYTCH_CLIENT.sessions.authenticate(session_token=access_token)
+        # Use Stytch's built-in Connected Apps token introspection (local validation)
+        response = STYTCH_CLIENT.idp.introspect_access_token_local(access_token)
 
-        # Extract user and organization info from token
+
+        # Check if response is None (invalid token)
+        if response is None:
+            logger.error("Token introspection returned None - invalid token")
+            raise HTTPException(status_code=401, detail="Invalid access token")
+
+        # Extract user and organization info from introspection response
+        # The response is an IDPTokenClaims object
+        user_id = getattr(response, 'subject', None)
+        org_claim = getattr(response, 'organization_claim', {})
+        organization_id = org_claim.get('organization_id') if org_claim else None
+
+        if not user_id or not organization_id:
+            logger.error(f"Missing required user_id ({user_id}) or organization_id ({organization_id}) in token")
+            raise HTTPException(status_code=401, detail="Invalid token claims")
+
         return {
-            'user_id': response.member.user_id,
-            'organization_id': response.organization.organization_id,
-            'scopes': []  # Scopes would come from proper OAuth introspection
+            'user_id': user_id,
+            'organization_id': organization_id,
+            'scopes': getattr(response, 'scope', '').split(' ') if getattr(response, 'scope', '') else []
         }
 
     except StytchError as e:
