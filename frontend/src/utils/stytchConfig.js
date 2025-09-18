@@ -47,7 +47,5 @@ export const discoveryStyles = {
   },
 };
 
-const CONNECTED_APP_CLIENT_ID = import.meta.env.VITE_CONNECTED_APP_CLIENT_ID;
-const CONNECTED_APP_REDIRECT_URI = import.meta.env.VITE_CONNECTED_APP_REDIRECT_URI;
-
-export const consentUrl = `/consent?client_id=${CONNECTED_APP_CLIENT_ID}&redirect_uri=${encodeURIComponent(CONNECTED_APP_REDIRECT_URI)}`;
+// Anti-pattern code removed - no longer need Connected App environment variables
+// The /consent route is now used by external CLI tool via B2BIdentityProvider
