@@ -5,12 +5,9 @@ export const ConsentForm = () => {
     <div className="dashboard-container">
       <div className="dashboard-content">
         <div className="header-wrapper">
-          <h1 className="page-heading">CLI Access Request</h1>
+          <h1 className="page-heading">Application Access Request</h1>
           <p className="page-subheading">
-            The <strong>Eli5 History CLI</strong> tool is requesting permission to access your explanation history.
-          </p>
-          <p className="page-subheading">
-            This will allow you to view your explanations from the command line.
+            An external application is requesting permission to access your data. Please review and choose whether to grant access.
           </p>
         </div>
       </div>
