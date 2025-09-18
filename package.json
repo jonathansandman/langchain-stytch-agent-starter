@@ -1,0 +1,19 @@
+{
+  "name": "langchain-stytch-agent-starter",
+  "version": "1.0.0",
+  "description": "B2B Explain Like I'm 5 chatbot with Stytch Connected Apps integration",
+  "scripts": {
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && source venv/bin/activate && python -m uvicorn main:app --reload --port 8000",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "install:frontend": "cd frontend && npm install",
+    "install:backend": "cd backend && source venv/bin/activate && pip install -r requirements.txt",
+    "install:cli": "cd eli5-history-cli && npm install",
+    "install:all": "npm run install:frontend && npm run install:backend && npm run install:cli",
+    "test:cli": "cd eli5-history-cli && npm test"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "private": true
+}
