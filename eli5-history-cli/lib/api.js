@@ -6,7 +6,7 @@ const path = require('path');
 // Load .env.local
 require('dotenv').config({ path: path.resolve(process.cwd(), '.env.local') });
 
-const ELI5_API_BASE_URL = process.env.ELI5_API_BASE_URL || 'http://localhost:8000';
+const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:8000';
 
 async function getExplanationHistory(limit = 10) {
   const token = await getToken();
@@ -17,7 +17,7 @@ async function getExplanationHistory(limit = 10) {
   }
 
   try {
-    const response = await fetch(`${ELI5_API_BASE_URL}/explanations?limit=${limit}`, {
+    const response = await fetch(`${API_BASE_URL}/explanations?limit=${limit}`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'

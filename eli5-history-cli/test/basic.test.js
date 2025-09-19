@@ -39,10 +39,10 @@ async function runBasicTests() {
     // Test 4: Environment variables
     console.log(chalk.yellow('\n📋 Environment Configuration:'));
 
-    const clientId = process.env.ELI5_CLI_CLIENT_ID;
-    const clientSecret = process.env.ELI5_CLI_CLIENT_SECRET;
+    const clientId = process.env.CONNECTED_APP_CLIENT_ID;
+    const clientSecret = process.env.CONNECTED_APP_CLIENT_SECRET;
     const projectId = process.env.STYTCH_PROJECT_ID;
-    const apiUrl = process.env.ELI5_API_BASE_URL;
+    const apiUrl = process.env.API_BASE_URL;
 
     if (clientId) {
       console.log(`✅ Client ID: ${clientId.substring(0, 20)}...${clientId.substring(clientId.length - 4)}`);
@@ -69,7 +69,7 @@ async function runBasicTests() {
     }
 
     // Test 5: All required env vars present
-    const requiredVars = ['ELI5_CLI_CLIENT_ID', 'ELI5_CLI_CLIENT_SECRET', 'STYTCH_PROJECT_ID'];
+    const requiredVars = ['CONNECTED_APP_CLIENT_ID', 'CONNECTED_APP_CLIENT_SECRET', 'STYTCH_PROJECT_ID'];
     const missingVars = requiredVars.filter(varName => !process.env[varName]);
 
     if (missingVars.length === 0) {
