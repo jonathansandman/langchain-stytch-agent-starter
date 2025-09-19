@@ -10,7 +10,10 @@
     "install:backend": "cd backend && python -m venv venv && source venv/bin/activate && pip install -r requirements.txt",
     "install:cli": "cd eli5-history-cli && npm install",
     "install:all": "npm run install:frontend && npm run install:backend && npm run install:cli",
-    "test:cli": "cd eli5-history-cli && npm test"
+    "test:cli": "cd eli5-history-cli && npm test",
+    "clean:redis": "echo '🧹 Cleaning Eli5 explanation cache...' && redis-cli --scan --pattern 'org:*:topics:*' | xargs -r redis-cli DEL && echo '✅ Explanation cache cleared'",
+    "clean:tokens": "echo '🧹 Cleaning CLI authentication tokens...' && rm -rf ~/.eli5-history-cli/ && echo '✅ CLI tokens cleared'",
+    "clean:all": "npm run clean:redis && npm run clean:tokens && echo '🎉 Clean slate ready!'"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
