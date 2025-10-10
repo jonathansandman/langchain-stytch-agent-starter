@@ -8,7 +8,7 @@ const ExplainForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const baseUrl = import.meta.env.VITE_REACT_APP_BASE_URL || 'http://localhost:8000';
+      const baseUrl = import.meta.env.VITE_SERVER_BASE_URL || 'http://localhost:8000';
       const res = await fetch(`${baseUrl}/explain`, {
         method: 'POST',
         headers: {
