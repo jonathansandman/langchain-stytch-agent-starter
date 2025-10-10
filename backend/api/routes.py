@@ -6,12 +6,12 @@ from config.logging_config import logger
 router = APIRouter()
 
 
-class ExplainRequest(BaseModel):
+class ExplainRequestBody(BaseModel):
     topic: str
 
 
 @router.post("/explain")
-async def explain(request: ExplainRequest):
+async def explain(request: ExplainRequestBody):
     logger.info(f"Received request to explain: {request.topic}")
     response = "Explain Like I'm Five Placeholder Response!"
     logger.info("Agent returned response")
